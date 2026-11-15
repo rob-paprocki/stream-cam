@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "bad",
+  "name": "Bad profile",
+  "destination": {
+    "type": "rtspPull",
+    "port": 8554
+  }
+}

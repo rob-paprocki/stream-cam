@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "bad",
+  "name": "Bad profile",
+  "destination": {
+    "type": "rtspPush",
+    "url": "rtsp://2001:db8::30:8554/cam"
+  }
+}

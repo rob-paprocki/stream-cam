@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "rtsps",
+  "name": "RTSPS push",
+  "destination": {
+    "type": "rtspPush",
+    "url": "rtsps://media.example.com/live"
+  }
+}

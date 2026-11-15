@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "id": "srt-listen",
+  "name": "SRT listener on cellular",
+  "network": "cellular",
+  "destination": {
+    "type": "srtListener",
+    "port": 9000,
+    "latencyMs": 8000,
+    "encryption": "aes192"
+  }
+}

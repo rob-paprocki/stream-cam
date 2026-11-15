@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "rtmp-live",
+  "name": "RTMPS to the live service",
+  "destination": {
+    "type": "rtmpPush",
+    "url": "rtmps://live.example.com/app"
+  }
+}

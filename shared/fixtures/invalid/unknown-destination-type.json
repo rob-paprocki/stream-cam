@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "bad",
+  "name": "Bad profile",
+  "destination": {
+    "type": "hls",
+    "url": "https://example.com/live.m3u8"
+  }
+}

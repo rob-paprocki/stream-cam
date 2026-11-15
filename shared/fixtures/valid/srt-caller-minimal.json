@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "srt-min",
+  "name": "SRT to studio",
+  "destination": {
+    "type": "srtCaller",
+    "host": "srt.example.com",
+    "port": 9000
+  }
+}

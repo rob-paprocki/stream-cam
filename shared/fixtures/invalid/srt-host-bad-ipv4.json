@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "bad",
+  "name": "Bad profile",
+  "destination": {
+    "type": "srtCaller",
+    "host": "192.168.100.20.5",
+    "port": 9000
+  }
+}

@@ -1,0 +1,60 @@
+# Libraries, Gradle plugins and CI tools the owner has approved (spec LIC-3).
+#
+# tests/check_dependencies.py fails when a library or plugin in android/gradle/libs.versions.toml, or a
+# direct dependency of the release or debug app or of the unit tests, matches no entry here. Gradle files
+# must declare every dependency and plugin through the catalog, so each one gets checked. A new
+# dependency needs the owner's approval first, with its licence named; then it gets a line here in the
+# same change.
+#
+# One entry per line, four columns separated by "|":
+#   pattern | licence (SPDX) | date approved (YYYY-MM-DD) | what it is
+# Patterns:
+#   group:artifact    a Maven library. "*" matches any run of characters inside the group or the
+#                     artifact, never across the ":".
+#   plugin:id         a Gradle plugin from the catalog's [plugins] table. "*" matches any characters.
+#   ci:name           a Python package that only CI runs. It never ships and approves no library.
+#   !group:artifact   never allowed in the build, not even when an approved library pulls it in. The
+#                     licence column of such a line is "-".
+# A line that starts with # is a comment.
+#
+# Libraries that an approved library pulls in under a permissive licence (Apache-2.0, MIT, BSD, ISC) are
+# accepted without an entry here (owner decision, 2026-11-14). The AboutLibraries licence check in the
+# app's build fails on any other licence (LIC-2). It doesn't see test-only libraries, so their licences
+# are checked by hand. config/resolved-dependencies.txt lists every library the app ships, and what the
+# debug build and the unit tests add, so each new one shows up in the pull request's diff. The owner
+# approved these by name on 2026-11-14: Ktor and the SLF4J API (MIT) through RootEncoder; JSpecify,
+# JetBrains annotations and Guava's listenablefuture through AndroidX and Kotlin.
+#
+# Native libraries (libsrt, OpenSSL, libuvc, libyuv, libjpeg-turbo) have no Maven coordinates. Their
+# licence entries are written by hand in config/aboutlibraries/.
+
+# Libraries the app ships.
+androidx.*:*                         | Apache-2.0 | 2026-11-14 | AndroidX and Jetpack Compose, the media3 muxer included
+org.jetbrains.kotlin:kotlin-stdlib*  | Apache-2.0 | 2026-11-14 | The Kotlin standard library, part of Kotlin itself
+org.jetbrains.kotlinx:*              | Apache-2.0 | 2026-11-14 | kotlinx libraries (coroutines, serialization)
+com.github.pedroSG94.RootEncoder:*   | Apache-2.0 | 2026-11-14 | RootEncoder, the capture and streaming library
+com.github.pedroSG94:RTSP-Server     | Apache-2.0 | 2026-11-14 | RootEncoder's RTSP server plugin
+io.github.thibaultbee.srtdroid:*     | Apache-2.0 | 2026-11-14 | srtdroid, the Android bindings for libsrt
+com.mikepenz:aboutlibraries*         | Apache-2.0 | 2026-11-14 | AboutLibraries, the licence list for the About screen
+
+# Libraries for unit tests only. They never ship in the app. The owner approved both by name on
+# 2026-11-14, JUnit with its EPL-1.0 licence because it's used in tests only.
+junit:junit                          | EPL-1.0    | 2026-11-14 | JUnit 4.13.2, for tests only
+org.jetbrains.kotlin:kotlin-test*    | Apache-2.0 | 2026-11-14 | kotlin-test
+
+# Gradle plugins. They run in the build and don't ship in the app. The owner approved the Android Gradle
+# plugin and Kotlin's Gradle plugins by name on 2026-11-14, along with the Kotlin standard library above.
+plugin:com.android.application       | Apache-2.0 | 2026-11-14 | The Android Gradle plugin
+plugin:org.jetbrains.kotlin.*        | Apache-2.0 | 2026-11-14 | Kotlin's Gradle plugins (JVM, Compose compiler, serialization)
+plugin:com.mikepenz.aboutlibraries.* | Apache-2.0 | 2026-11-14 | AboutLibraries, which also runs the licence check
+
+# CI tools: Python packages that only CI installs, from config/requirements-*.txt with pinned versions
+# and hashes. They are never distributed, so their licences don't reach the app. The owner approved
+# jsonschema on 2026-11-14. The packages it pulls in, pinned in config/requirements-jsonschema.txt, are
+# all MIT.
+ci:jsonschema                        | MIT        | 2026-11-14 | Checks the profile schema and example profiles
+# fdroidserver: the owner dropped it from CI on 2026-11-14 rather than approve its copyleft dependency tree.
+
+# Never allowed.
+!com.github.pedroSG94.RootEncoder:whip | -        | 2026-11-14 | RootEncoder's WHIP output: not used, and it pulls in Bouncy Castle
+!org.bouncycastle:*                     | -        | 2026-11-14 | Bouncy Castle, excluded with RootEncoder's WHIP output

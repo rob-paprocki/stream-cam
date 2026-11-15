@@ -1,0 +1,9 @@
+{
+  "id": "bad",
+  "name": "No version",
+  "destination": {
+    "type": "srtCaller",
+    "host": "srt.example.com",
+    "port": 9000
+  }
+}

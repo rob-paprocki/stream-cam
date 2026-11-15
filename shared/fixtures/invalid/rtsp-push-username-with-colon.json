@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "bad",
+  "name": "Bad profile",
+  "destination": {
+    "type": "rtspPush",
+    "url": "rtsp://media.example.com/live",
+    "username": "user:name"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "bad",
+  "name": "Studio\n",
+  "destination": {
+    "type": "srtCaller",
+    "host": "srt.example.com",
+    "port": 9000
+  }
+}

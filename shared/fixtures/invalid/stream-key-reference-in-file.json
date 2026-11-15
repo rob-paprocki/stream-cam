@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "bad",
+  "name": "Bad profile",
+  "destination": {
+    "type": "rtmpPush",
+    "url": "rtmp://live.example.com/app",
+    "streamKeyRef": "secret-2"
+  }
+}

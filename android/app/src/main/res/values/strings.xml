@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PROJECT_NAME</string>
+
+    <!-- Status strip along the top of the main screen. -->
+    <string name="source_test_pattern">Test pattern</string>
+    <string name="status_resolution">%1$dx%2$d</string>
+    <string name="status_fps">%1$d fps</string>
+    <string name="status_not_recording">Not recording</string>
+    <string name="status_starting">Starting…</string>
+    <!-- %1$s is the time recorded so far, for example 00:01:23. -->
+    <string name="status_recording">REC %1$s</string>
+    <string name="status_stopping">Stopping…</string>
+    <string name="status_saving">Saving to Movies…</string>
+    <string name="status_record_failed">Recording failed</string>
+
+    <!-- Controls along the bottom. The Record toggle reads Stop while recording. -->
+    <string name="button_record">Record</string>
+    <string name="button_stop">Stop</string>
+    <string name="button_export_log">Export log</string>
+    <string name="record_state_on">Recording</string>
+    <string name="record_state_off">Not recording</string>
+
+    <string name="banner_dismiss">Dismiss</string>
+
+    <!-- Sharing the debug log. -->
+    <string name="export_log_subject">PROJECT_NAME debug log</string>
+    <string name="export_log_chooser_title">Share the debug log</string>
+    <string name="export_log_no_app">No app on this phone can receive the log.</string>
+    <string name="export_log_failed">The log couldn\'t be shared.</string>
+</resources>

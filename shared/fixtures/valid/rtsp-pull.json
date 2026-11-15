@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "rtsp-server",
+  "name": "RTSP server",
+  "network": "ethernet",
+  "allowFallback": false,
+  "destination": {
+    "type": "rtspPull",
+    "port": 8554,
+    "path": "live",
+    "username": "viewer"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "rtmp-server-defaults",
+  "name": "RTMP server with default port",
+  "destination": {
+    "type": "rtmpPull",
+    "app": "live",
+    "streamName": "cam"
+  }
+}

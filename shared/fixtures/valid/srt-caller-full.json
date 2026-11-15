@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "srt-full",
+  "name": "SRT encrypted over Wi-Fi",
+  "network": "wifi",
+  "allowFallback": true,
+  "destination": {
+    "type": "srtCaller",
+    "host": "192.168.100.20",
+    "port": 8890,
+    "streamId": "publish:camera1",
+    "latencyMs": 200,
+    "encryption": "aes256"
+  }
+}

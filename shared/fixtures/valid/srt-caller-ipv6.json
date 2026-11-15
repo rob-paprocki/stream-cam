@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "srt-v6",
+  "name": "SRT over IPv6",
+  "network": "ethernet",
+  "destination": {
+    "type": "srtCaller",
+    "host": "2001:db8::20",
+    "port": 9000,
+    "latencyMs": 20,
+    "encryption": "aes128"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "bad",
+  "name": "Bad profile",
+  "destination": {
+    "type": "srtCaller",
+    "host": "srt.example.com",
+    "port": 9000,
+    "streamId": ""
+  }
+}

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The themed-icon version: one colour, with the record dot cut out of the camera body. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="evenOdd"
+        android:pathData="M30,40h36a4,4 0,0 1,4 4v20a4,4 0,0 1,-4 4h-36a4,4 0,0 1,-4 -4v-20a4,4 0,0 1,4 -4zM48,54m-8,0a8,8 0,1 1,16 0a8,8 0,1 1,-16 0" />
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M72,48l10,-6v24l-10,-6z" />
+</vector>

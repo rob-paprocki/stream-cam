@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "rtsp-v6",
+  "name": "RTSP to the media server",
+  "destination": {
+    "type": "rtspPush",
+    "url": "rtsp://[2001:db8::30]:8554/cam/main",
+    "username": "example"
+  }
+}

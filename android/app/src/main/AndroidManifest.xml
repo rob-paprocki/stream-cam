@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    No permissions: the test pattern needs no camera or microphone, recordings go to the shared Movies
+    folder through MediaStore (no storage permission from Android 10), and the debug log is shared as a
+    file through the app's own FileProvider.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+        android:name=".App"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.App">
+        <!--
+            The app handles rotation and window resizing itself, so turning the phone doesn't rebuild the
+            screen and interrupt the preview.
+        -->
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!--
+            Hands the exported debug log to the app the user shares it with, and nothing else:
+            log_share_paths.xml limits it to one folder in the app's cache. The receiving app can read
+            that one file, only for that share.
+        -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.logs"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/log_share_paths" />
+        </provider>
+    </application>
+
+</manifest>

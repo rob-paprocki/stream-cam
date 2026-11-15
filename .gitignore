@@ -1,0 +1,20 @@
+# Local-only files, never committed.
+wordlist.local
+*.local
+
+# macOS Finder metadata
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Android and Gradle build output, and each machine's SDK path.
+android/.gradle/
+android/.kotlin/
+android/build/
+android/*/build/
+android/local.properties
+android/captures/
+*.apk
+*.aab

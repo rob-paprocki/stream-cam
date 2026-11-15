@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "bad",
+  "name": "Bad profile",
+  "destination": {
+    "type": "rtmpPull",
+    "app": "live stream",
+    "streamName": "cam"
+  }
+}

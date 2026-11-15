@@ -1,0 +1,203 @@
+# Checks every push and pull request: the repository checks, then the Android build with its unit tests,
+# lint, the licence and dependency gates and the 16 KB page check. The dependency gate also applies
+# F-Droid's rules on Google Play services, Firebase and repositories. The debug APK is kept as an
+# artifact named after the commit. In the development repository, the changelog check runs as well.
+#
+# Each action is pinned to a full commit SHA, with its release in the comment beside it, and each Python
+# tool to an exact version and hash in config/requirements-*.txt.
+#
+# A pull request from a branch in this repository skips the jobs below, because the push already ran
+# them. GitHub counts a skipped job as passed, so while that skip is in place, don't make these job names
+# required status checks: such a pull request would pass them without running anything.
+
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.ref }}
+  # A newer push to the same branch replaces a run still in progress, except on main.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  repo-checks:
+    name: Repository checks
+    # A pull request from a branch in this repository was already checked by its push.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+
+      - name: Personal-value check
+        run: python3 -I tests/check_repo.py
+
+      - name: Tests of the repository checks
+        run: python3 -B -I -m unittest discover -s tests -p 'test_*.py'
+
+      - name: Profile schema and example profiles
+        run: |
+          python3 -m pip install --disable-pip-version-check --no-cache-dir --require-hashes \
+            -r config/requirements-jsonschema.txt
+          python3 -I tests/check_profile_schema.py
+
+  android:
+    name: Android build and licence checks
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+    # The runner image has the Android SDK (platforms up to android-37, build-tools 34 to 37).
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: android
+        # Explicitly bash, so that a failure anywhere in a pipeline fails the step (pipefail).
+        shell: bash
+    env:
+      APK: app/build/outputs/apk/foss/debug/app-foss-debug.apk
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Checks gradle-wrapper.jar against the checksums Gradle publishes for its releases.
+      - name: Validate the Gradle wrapper
+        uses: gradle/actions/wrapper-validation@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+
+      # The basic cache provider is open source; the default one isn't.
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+        with:
+          cache-provider: basic
+
+      # The licence gate (LIC-2) runs inside these tasks: the AboutLibraries plugin stops the build when a
+      # library's licence isn't on the allowed list. exportLibraryDefinitionsFossRelease applies the same
+      # check to the release build's libraries.
+      - name: Unit tests, lint, debug APK and licence check
+        run: >-
+          ./gradlew --stacktrace
+          :core:test
+          :app:testFossDebugUnitTest
+          :app:lintFossDebug
+          :app:assembleFossDebug
+          :app:exportLibraryDefinitionsFossRelease
+
+      # LIC-3: every library and plugin in the version catalog, and every direct dependency of the
+      # release, debug and unit-test classpaths, must be on config/approved-dependencies.txt; Gradle files
+      # must declare dependencies and plugins through the catalog; and config/resolved-dependencies.txt
+      # must match what those classpaths resolve to. Also fails on Google Play services, Firebase, or a
+      # repository F-Droid doesn't accept. The script runs Gradle's dependency reports itself. F-Droid's
+      # own scanner doesn't run in CI (see the CI tools in config/approved-dependencies.txt).
+      - name: Dependency gate
+        run: python3 -I ../tests/check_dependencies.py --check
+
+      - name: 16 KB page alignment of native libraries
+        run: python3 -I ../tests/check_elf_alignment.py "$APK"
+
+      # On a pull request, GITHUB_SHA is a merge commit that isn't in the branch, so use the PR's head.
+      - name: Name the APK after the commit
+        env:
+          COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          named="$RUNNER_TEMP/PROJECT_NAME-foss-debug-${COMMIT::7}.apk"
+          cp "$APK" "$named"
+          echo "NAMED_APK=$named" >> "$GITHUB_ENV"
+
+      # Uploaded as the .apk itself, not zipped. The artifact takes the file's name.
+      - name: Keep the debug APK
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          path: ${{ env.NAMED_APK }}
+          archive: false
+          if-no-files-found: error
+          retention-days: 30
+
+  changelog:
+    name: Changelog check
+    # Flags visible changes that have no changelog line. Only the development repository has the history
+    # this needs.
+    if: endsWith(github.repository, '-private')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Changelog check
+        run: python3 -I scripts/release/changelog_check.py
+
+  wordlist:
+    name: Word-list check of the public copy
+    # Builds the public copy of this commit and applies the private word list to every file and file name,
+    # the same check a release runs. Only the development repository has the word-list secret, and only
+    # pushes get it. Hits are reported by file and line, never by the term.
+    if: endsWith(github.repository, '-private') && github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # build_public.py needs Python 3.12 or later (tarfile's data filter).
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+
+      # An empty or missing secret stops the build ("the word list is empty"), so the check fails closed.
+      - name: Build the public copy and apply the word list
+        env:
+          STREAMCAM_WORDLIST: ${{ secrets.PRIVATE_WORDLIST }}
+        run: python3 -I scripts/release/build_public.py HEAD "$RUNNER_TEMP/public-copy" --message "CI word-list check"
+
+      # On a hit, says which LINE of the word list matched, how often, and up to three example places, so the
+      # owner knows which entry to look at. It never prints a pattern or the matched text.
+      - name: Which word-list lines matched
+        if: failure()
+        env:
+          STREAMCAM_WORDLIST: ${{ secrets.PRIVATE_WORDLIST }}
+        run: |
+          umask 077
+          list="$RUNNER_TEMP/wordlist.txt"
+          printf '%s\n' "$STREAMCAM_WORDLIST" > "$list"
+          trap 'rm -f "$list"' EXIT
+          # Scans the public copy the failed build left behind, so only published files count.
+          python3 -I scripts/release/build_public.py --explain "$list" "$RUNNER_TEMP/public-copy" > "$RUNNER_TEMP/explain.txt" || true
+          python3 -I - "$RUNNER_TEMP/explain.txt" <<'PY'
+          import collections, re, sys
+          hits, names, places = collections.Counter(), collections.Counter(), collections.defaultdict(list)
+          for line in open(sys.argv[1], encoding="utf-8"):
+              m = re.match(r"word-list line (\d+) matches (.*)", line.strip())
+              if not m:
+                  continue
+              n, where = int(m.group(1)), m.group(2)
+              if where.startswith("the NAME"):
+                  names[n] += 1
+              else:
+                  hits[n] += 1
+                  if len(places[n]) < 3:
+                      places[n].append(where)
+          for n in sorted(set(hits) | set(names)):
+              print("word-list line %d: %d line(s) of content, %d file name(s); e.g. %s"
+                    % (n, hits[n], names[n], ", ".join(places[n]) or "file names only"))
+          PY
